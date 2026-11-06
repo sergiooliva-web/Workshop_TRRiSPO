@@ -1,0 +1,9 @@
+Package: crypto-tool
+Version: @VERSION@
+Section: utils
+Priority: optional
+Architecture: @ARCH@
+Depends: @DEPENDS@
+Maintainer: Sergei Shikov <se.shikov@gmail.com>
+Description: File encryption utility using libsodium
+ Encrypts and decrypts files with Argon2id and Secretbox.
