@@ -1,0 +1,19 @@
+# Каталоги сборки CMake (локальные и WSL)
+/build/
+/build-release/
+/dist/
+
+# Объектные и исполняемые файлы
+*.o
+*.obj
+*.out
+*.exe
+*.a
+*.lib
+
+# Файлы среды разработки VS Code
+.vscode/
+
+# Конфигурации и временные файлы ОС
+.DS_Store
+Thumbs.db

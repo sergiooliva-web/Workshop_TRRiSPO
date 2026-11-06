@@ -1,0 +1,4 @@
+build-essential
+cmake
+pkgconf
+libsodium-dev
