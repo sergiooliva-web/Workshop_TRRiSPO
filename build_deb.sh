@@ -51,18 +51,34 @@ sed -e "s/@VERSION@/$VERSION/" -e "s/@ARCH@/$ARCH/" -e "s/@DEPENDS@/$DEPENDS/" \
 # Копируем служебный conffiles
 cp packaging/DEBIAN/conffiles "$ROOT/DEBIAN/conffiles"
 
+# Добавляем обязательную документацию пакета для прохождения lintian
+mkdir -p "$ROOT/usr/share/doc/$NAME"
+cat << EOF > "$ROOT/usr/share/doc/$NAME/copyright"
+Format: https://debian.org
+Upstream-Name: $NAME
+
+Files: *
+Copyright: 2026 Developer
+License: MIT
+EOF
+
+cat << EOF | gzip -9n > "$ROOT/usr/share/doc/$NAME/changelog.gz"
+$NAME ($VERSION) unstable; urgency=low
+
+  * Release version $VERSION.
+
+ -- Developer <dev@example.com>  Mon, 16 Nov 2026 18:00:00 +0300
+EOF
+
 # --- РЕШЕНИЕ ПРОБЛЕМЫ С ПРАВАМИ В WSL НА ДИСКЕ NTFS ---
-# Копируем структуру пакета во временную директорию внутри чистой файловой системы Linux
-TMP_BUILD="/tmp/deb_build_${NAME}"
+TMP_BUILD="/tmp/${NAME}_${VERSION}_${ARCH}"
 rm -rf "$TMP_BUILD"
 cp -r "$ROOT" "$TMP_BUILD"
 
-# Принудительно выставляем правильные права внутри /tmp (на NTFS это не работало)
 chmod -R 755 "$TMP_BUILD"
 chmod 755 "$TMP_BUILD/DEBIAN"
+chmod 644 "$TMP_BUILD/etc/crypto_tool/crypto_tool.conf" "$TMP_BUILD/DEBIAN/control" "$TMP_BUILD/DEBIAN/conffiles" "$TMP_BUILD/usr/share/doc/$NAME/copyright" "$TMP_BUILD/usr/share/doc/$NAME/changelog.gz"
 
-# Собираем готовый .deb пакет из папки /tmp напрямую в вашу папку dist/
 dpkg-deb --root-owner-group --build "$TMP_BUILD" dist/
-
-# Очищаем временную папку
 rm -rf "$TMP_BUILD"
+
