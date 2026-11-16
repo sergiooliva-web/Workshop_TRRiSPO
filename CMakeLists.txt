@@ -1,28 +1,35 @@
 cmake_minimum_required(VERSION 3.20)
-
-# Читаем версию из файла VERSION
 file(STRINGS VERSION APP_VERSION LIMIT_COUNT 1)
 project(crypto_tool VERSION ${APP_VERSION} LANGUAGES C)
 
-# Стандарт C11 и строгие флаги (требование методички: без варнингов)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 add_compile_options(-Wall -Wextra -Wpedantic)
 
-# Находим libsodium через PkgConfig
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(LIBSODIUM REQUIRED IMPORTED_TARGET libsodium)
+pkg_check_modules(SODIUM REQUIRED IMPORTED_TARGET libsodium)
 
-# Собираем модуль core в статическую библиотеку
 add_library(cryptocore STATIC src/core.c)
 target_include_directories(cryptocore PUBLIC src)
-target_link_libraries(cryptocore PUBLIC PkgConfig::LIBSODIUM)
+target_link_libraries(cryptocore PUBLIC PkgConfig::SODIUM)
 
-# Собираем исполняемый файл программы
 add_executable(crypto_tool src/main.c)
-# Передаем версию программы внутрь C-кода
 target_compile_definitions(crypto_tool PRIVATE APP_VERSION="${PROJECT_VERSION}")
 target_link_libraries(crypto_tool PRIVATE cryptocore)
 
-# Настройка для инсталляции (пригодится для сборки deb-пакета)
 install(TARGETS crypto_tool RUNTIME DESTINATION bin)
+install(FILES packaging/crypto_tool.conf DESTINATION /etc/crypto_tool)
+
+# Подключение тестирования
+include(CTest)
+if(BUILD_TESTING)
+    add_executable(test_core tests/test_core.c)
+    target_link_libraries(test_core PRIVATE cryptocore)
+    add_test(NAME core COMMAND test_core)
+
+    add_test(NAME cli_version COMMAND crypto_tool --version)
+    set_tests_properties(cli_version PROPERTIES PASS_REGULAR_EXPRESSION "${PROJECT_VERSION}")
+
+    add_test(NAME cli_bad_args COMMAND crypto_tool --no-such-option)
+    set_tests_properties(cli_bad_args PROPERTIES WILL_FAIL TRUE)
+endif()

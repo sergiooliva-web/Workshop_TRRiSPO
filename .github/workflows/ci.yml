@@ -1,0 +1,82 @@
+name: ci
+
+on:
+  push:
+    branches: ["**"]
+    tags: ["v*"]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: sudo apt-get update && xargs -a build-deps.txt sudo apt-get install -y cppcheck
+      - name: Configure release
+        run: cmake -S . -B build -DCMAKE_C_FLAGS=-Werror -DBUILD_TESTING=OFF
+      - name: Build release
+        run: cmake --build build
+      - name: Static analysis
+        run: cppcheck --enable=warning,style,performance --error-exitcode=1 -q src
+
+  test:
+    needs: build
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: sudo apt-get update && xargs -a build-deps.txt sudo apt-get install -y gcovr
+      - name: Configure debug with sanitizers
+        run: >
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
+          -DCMAKE_C_FLAGS="--coverage -fsanitize=address,undefined"
+          -DCMAKE_EXE_LINKER_FLAGS="--coverage -fsanitize=address,undefined"
+      - name: Build tests
+        run: cmake --build build
+      - name: Run CTest
+        run: ctest --test-dir build --output-on-failure --output-junit junit.xml
+      - name: Check coverage (>= 70%)
+        run: gcovr --root . --filter src/core --fail-under-line 70 build
+      - name: Upload test report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-report
+          path: build/junit.xml
+
+  package:
+    needs: test
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: sudo apt-get update && xargs -a build-deps.txt sudo apt-get install -y dpkg-dev lintian
+      - name: Build deb package
+        run: ./build_deb.sh
+      - name: Run lintian
+        run: lintian --fail-on error dist/*.deb
+      - name: Upload deb artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: deb
+          path: dist/*.deb
+
+  release:
+    needs: package
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download deb artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: deb
+          path: dist
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${{ github.ref_name }}" dist/*.deb --title "Release ${{ github.ref_name }}" --generate-notes

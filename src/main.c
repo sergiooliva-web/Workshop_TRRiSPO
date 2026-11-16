@@ -4,6 +4,10 @@
 #include <unistd.h>
 #include "core.h"
 
+#ifndef APP_VERSION
+#define APP_VERSION "0.0.0"
+#endif
+
 void load_default_config(char *default_password, size_t max_len) {
     const char *config_path = "/etc/crypto_tool/crypto_tool.conf";
     FILE *f = fopen(config_path, "r");
@@ -121,7 +125,7 @@ int main(int argc, char *argv[]) {
     }
 
     if (strlen(password) == 0) {
-        char *input_pass = getpass("Введите пароль: ");
+        const char *input_pass = getpass("Введите пароль: ");
         if (input_pass && strlen(input_pass) > 0) {
             strncpy(password, input_pass, sizeof(password) - 1);
         } else {

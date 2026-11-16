@@ -14,6 +14,8 @@
 # Файлы среды разработки VS Code
 .vscode/
 
+build-test/
+
 # Конфигурации и временные файлы ОС
 .DS_Store
 Thumbs.db
