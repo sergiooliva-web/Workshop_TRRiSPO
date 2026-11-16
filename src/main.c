@@ -121,7 +121,7 @@ int main(int argc, char *argv[]) {
     }
 
     if (strlen(password) == 0) {
-        char *input_pass = getpass("Введите пароль: ");
+        const char *input_pass = getpass("Введите пароль: ");
         if (input_pass && strlen(input_pass) > 0) {
             strncpy(password, input_pass, sizeof(password) - 1);
         } else {

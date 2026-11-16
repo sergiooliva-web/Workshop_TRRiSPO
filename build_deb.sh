@@ -3,6 +3,16 @@ set -eu
 
 NAME=crypto-tool
 VERSION=$(cat VERSION)
+
+# Проверка совпадения версии в файле VERSION и тега Git (если сборка запущена по тегу)
+if [ "${GITHUB_REF_TYPE:-}" = "tag" ]; then
+    EXPECTED_TAG="v${VERSION}"
+    if [ "$GITHUB_REF_NAME" != "$EXPECTED_TAG" ]; then
+        echo "Ошибка: Тег '$GITHUB_REF_NAME' не совпадает с версией '$EXPECTED_TAG' из файла VERSION!" >&2
+        exit 1
+    fi
+fi
+
 ARCH=$(dpkg --print-architecture)
 ROOT=build/pkg/${NAME}_${VERSION}_${ARCH}
 
