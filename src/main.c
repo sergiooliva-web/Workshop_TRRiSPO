@@ -4,6 +4,10 @@
 #include <unistd.h>
 #include "core.h"
 
+#ifndef APP_VERSION
+#define APP_VERSION "0.0.0"
+#endif
+
 void load_default_config(char *default_password, size_t max_len) {
     const char *config_path = "/etc/crypto_tool/crypto_tool.conf";
     FILE *f = fopen(config_path, "r");
@@ -144,7 +148,7 @@ int main(int argc, char *argv[]) {
         res = core_decrypt(in_buf, in_len, password, &out_buf, &out_len);
     }
 
-    //free(in_buf);
+    free(in_buf);
 
     if (res != 0) {
         fprintf(stderr, "Ошибка: Операция %s завершилась неудачей (код %d). Проверьте пароль.\n", argv[1], res);
