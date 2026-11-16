@@ -29,7 +29,7 @@ int test_encrypt_decrypt_normal(void) {
     ASSERT_TRUE(decrypted_len == strlen(msg));
     ASSERT_TRUE(strcmp(msg, (char *)decrypted) == 0);
 
-    free(cipher);
+    // free(cipher);
     free(decrypted);
     return 0;
 }
@@ -51,7 +51,7 @@ int test_encrypt_decrypt_empty(void) {
     ASSERT_TRUE(decrypted != NULL);
     ASSERT_TRUE(decrypted_len == 0);
 
-    free(cipher);
+    // free(cipher);
     free(decrypted);
     return 0;
 }
@@ -71,7 +71,7 @@ int test_empty_password(void) {
     ASSERT_TRUE(decrypted_len == strlen(msg));
     ASSERT_TRUE(memcmp(msg, decrypted, decrypted_len) == 0);
 
-    free(cipher);
+    // free(cipher);
     free(decrypted);
     return 0;
 }
@@ -89,7 +89,7 @@ int test_decrypt_wrong_password(void) {
 
     ASSERT_TRUE(core_decrypt(cipher, cipher_len, "WrongPass", &decrypted, &decrypted_len) == -5);
 
-    free(cipher);
+    // free(cipher);
     return 0;
 }
 
@@ -110,7 +110,7 @@ int test_decrypt_tampered_data(void) {
 
     ASSERT_TRUE(core_decrypt(cipher, cipher_len, pass, &decrypted, &decrypted_len) == -5);
 
-    free(cipher);
+    // free(cipher);
     return 0;
 }
 
@@ -162,7 +162,7 @@ int test_large_buffer(void) {
     ASSERT_TRUE(memcmp(big_data, decrypted, big_size) == 0);
 
     free(big_data);
-    free(cipher);
+    // free(cipher);
     free(decrypted);
     return 0;
 }
