@@ -144,7 +144,7 @@ int main(int argc, char *argv[]) {
         res = core_decrypt(in_buf, in_len, password, &out_buf, &out_len);
     }
 
-    free(in_buf);
+    //free(in_buf);
 
     if (res != 0) {
         fprintf(stderr, "Ошибка: Операция %s завершилась неудачей (код %d). Проверьте пароль.\n", argv[1], res);
