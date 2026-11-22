@@ -8,14 +8,15 @@ add_compile_options(-Wall -Wextra -Wpedantic)
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(SODIUM REQUIRED IMPORTED_TARGET libsodium)
+pkg_check_modules(MHD REQUIRED IMPORTED_TARGET libmicrohttpd)
 
 add_library(cryptocore STATIC src/core.c)
 target_include_directories(cryptocore PUBLIC src)
 target_link_libraries(cryptocore PUBLIC PkgConfig::SODIUM)
 
-add_executable(crypto_tool src/main.c)
+add_executable(crypto_tool src/main.c src/server.c)
 target_compile_definitions(crypto_tool PRIVATE APP_VERSION="${PROJECT_VERSION}")
-target_link_libraries(crypto_tool PRIVATE cryptocore)
+target_link_libraries(crypto_tool PRIVATE cryptocore PkgConfig::MHD)
 
 install(TARGETS crypto_tool RUNTIME DESTINATION bin)
 install(FILES packaging/crypto_tool.conf DESTINATION /etc/crypto_tool)

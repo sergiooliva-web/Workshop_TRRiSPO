@@ -3,6 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 #include "core.h"
+#include "server.h"
 
 #ifndef APP_VERSION
 #define APP_VERSION "0.0.0"
@@ -79,6 +80,7 @@ void print_help(const char *prog_name) {
     printf("Опции:\n");
     printf("  --help     Показать эту справку\n");
     printf("  --version  Показать версию программы\n");
+    printf("  serve      Запустить HTTP-сервер (настройки через APP_PORT и APP_API_TOKEN)\n\n");
 }
 
 int main(int argc, char *argv[]) {
@@ -100,6 +102,13 @@ int main(int argc, char *argv[]) {
         #endif
         return 0;
     }
+
+    if (strcmp(argv[1], "serve") == 0) {
+        char default_password[256] = {0};
+        load_default_config(default_password, sizeof(default_password));
+        return run_server(default_password);
+    }
+
 
     int is_encrypt = (strcmp(argv[1], "encrypt") == 0);
     int is_decrypt = (strcmp(argv[1], "decrypt") == 0);
