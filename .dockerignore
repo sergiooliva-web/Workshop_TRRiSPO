@@ -1,0 +1,8 @@
+.git
+.github
+build
+tests
+packaging
+src
+CMakeLists.txt
+README.md
