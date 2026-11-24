@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: crypto-tool-config
+  namespace: crypto-tool
+data:
+  APP_PORT: "8081"

@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: crypto-tool
+  namespace: crypto-tool
+spec:
+  type: ClusterIP
+  selector:
+    app: crypto-tool
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8081
